@@ -1,5 +1,5 @@
 /* PortableLM GitHub Pages service worker: isolation headers + app-shell caching. */
-const CACHE_VERSION='portablelm-pages-1.6.4-runtime-v2';
+const CACHE_VERSION='portablelm-pages-1.6.5-android-load-fix';
 const rel=path=>new URL(path,self.registration.scope).href;
 const INDEX_URL=rel('./index.html');
 const CORE_URLS=[rel('./index.html'),rel('./manifest.webmanifest'),rel('./icons/icon.svg'),rel('./assets/page-loader.js'),rel('./assets/app-loader.js'),rel('./assets/register-service-worker.js'),rel('./site/page-01.txt'),rel('./site/page-02.txt'),rel('./site/page-03.txt'),rel('./site/page-04.txt'),rel('./site/page-05.txt'),rel('./assets/app-part-00.gz'),rel('./assets/app-part-01.gz'),rel('./assets/app-part-02.gz'),rel('./assets/app-part-03.gz')];

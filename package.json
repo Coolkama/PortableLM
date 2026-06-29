@@ -1,0 +1,25 @@
+{
+  "name": "portablelm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A static browser application proving local GGUF inference with no required network service.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "vendor:runtime": "node scripts/vendor-runtime.mjs",
+    "verify:assets": "node scripts/verify-assets.mjs",
+    "test": "vitest run",
+    "build": "npm run vendor:runtime && npm run verify:assets && vite build",
+    "test:dist": "node scripts/verify-dist.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@wllama/wllama": "3.5.1",
+    "@wllama/wllama-compat": "3.5.1"
+  },
+  "devDependencies": {
+    "vite": "8.1.0",
+    "vitest": "4.1.9"
+  }
+}

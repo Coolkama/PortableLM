@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - milestone-1-local-inference-proof
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -13,7 +16,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: portablelm-pages
+  group: portablelm-pages-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -50,7 +53,7 @@ jobs:
           npm run test:dist
 
       - name: Commit reproducibly vendored runtime assets
-        if: github.ref == 'refs/heads/milestone-1-local-inference-proof'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/milestone-1-local-inference-proof'
         run: |
           if git status --porcelain -- public/runtime/wllama | grep -q .; then
             git config user.name "github-actions[bot]"
@@ -67,14 +70,17 @@ jobs:
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Configure GitHub Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Upload GitHub Pages artefact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,34 +1,24 @@
-name: Build, test and deploy Milestone 1
+name: Build and publish PortableLM
 
 on:
   push:
     branches:
-      - main
       - milestone-1-local-inference-proof
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: portablelm-pages-${{ github.event_name }}-${{ github.ref }}
+  group: portablelm-main-publish
   cancel-in-progress: false
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
-    outputs:
-      deployment_sha: ${{ steps.deployment-sha.outputs.sha }}
     steps:
-      - name: Check out source
+      - name: Check out source branch
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Use Node.js 22
         uses: actions/setup-node@v4
@@ -39,54 +29,20 @@ jobs:
       - name: Install exact dependencies
         run: npm ci
 
-      - name: Vendor and verify Wllama runtime
+      - name: Verify and build
         run: |
           npm run vendor:runtime
           npm run verify:assets
-
-      - name: Run automated tests
-        run: npm test
-
-      - name: Build static production site
-        run: |
+          npm test
           npm run build
           npm run test:dist
 
-      - name: Commit reproducibly vendored runtime assets
-        if: github.event_name == 'push' && github.ref == 'refs/heads/milestone-1-local-inference-proof'
-        run: |
-          if git status --porcelain -- public/runtime/wllama | grep -q .; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add public/runtime/wllama
-            git commit -m "Vendor Wllama 3.5.1 runtime assets [skip ci]"
-            git push origin HEAD:${GITHUB_REF_NAME}
-          else
-            echo "Vendored runtime assets are already current."
-          fi
-
-      - name: Record deployment commit
-        id: deployment-sha
-        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Configure GitHub Pages
-        if: github.event_name != 'pull_request'
-        uses: actions/configure-pages@v5
-
-      - name: Upload GitHub Pages artefact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
+      - name: Publish compiled site to main
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: dist
-
-  deploy:
-    if: github.event_name != 'pull_request'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: main
+          publish_dir: ./dist
+          force_orphan: true
+          enable_jekyll: false
+          commit_message: Publish compiled Milestone 1 site

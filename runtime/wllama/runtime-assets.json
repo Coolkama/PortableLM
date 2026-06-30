@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "engine": {
+    "package": "@wllama/wllama",
+    "version": "3.5.1"
+  },
+  "compatibilityRuntime": {
+    "package": "@wllama/wllama-compat",
+    "version": "3.5.1"
+  },
+  "assets": [
+    {
+      "package": "@wllama/wllama-compat",
+      "packageVersion": "3.5.1",
+      "path": "runtime/wllama/compat/wllama.js",
+      "bytes": 166823,
+      "sha256": "011e11f2c2a4a94d1764a4f45993e01ae5c48f72d78d59464972b26606afd6ac"
+    },
+    {
+      "package": "@wllama/wllama-compat",
+      "packageVersion": "3.5.1",
+      "path": "runtime/wllama/compat/wllama.wasm",
+      "bytes": 14186308,
+      "sha256": "9ea153d9396db12c385d53e9a8330b1638ca3e8805159a762ce8859d92d2ac8b"
+    },
+    {
+      "package": "@wllama/wllama",
+      "packageVersion": "3.5.1",
+      "path": "runtime/wllama/default/wllama.wasm",
+      "bytes": 7656521,
+      "sha256": "4197ce6d3dc9240c42ee52b4197dc99638875a06b0083901f8a57767338a0cfa"
+    },
+    {
+      "package": "@wllama/wllama-compat",
+      "packageVersion": "3.5.1",
+      "path": "runtime/wllama/vendor/LICENCE-wllama-compat.txt",
+      "bytes": 1071,
+      "sha256": "5866e3bd7e3cbd3f7c8bea6efd8a1e7fa7cc8de68c30f428aff7c6584a0fb720"
+    },
+    {
+      "package": "@wllama/wllama",
+      "packageVersion": "3.5.1",
+      "path": "runtime/wllama/vendor/LICENCE-wllama.txt",
+      "bytes": 1071,
+      "sha256": "5866e3bd7e3cbd3f7c8bea6efd8a1e7fa7cc8de68c30f428aff7c6584a0fb720"
+    }
+  ]
+}

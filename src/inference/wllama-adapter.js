@@ -160,7 +160,10 @@ export class WllamaAdapter {
         await this.#instance.createChatCompletion({
           messages: [{ role: 'user', content: prompt }],
           stream: true,
-          onData: (chunk) => acceptText(chunk.choices?.[0]?.delta?.content ?? '', chunk),
+          onData: (chunk) => {
+            const delta = chunk?.choices?.[0]?.delta;
+            acceptText(delta?.content || delta?.reasoning_content || '', chunk);
+          },
           abortSignal: controller.signal,
           max_tokens: maxTokens,
           temperature: 0.7,
@@ -169,6 +172,9 @@ export class WllamaAdapter {
           min_p: 0.05,
           penalty_repeat: 1.1,
           timings_per_token: false,
+          chat_template_kwargs: {
+            enable_thinking: false,
+          },
         });
       } else {
         this.log.add('warning', 'No chat template was found; using raw completion mode.');

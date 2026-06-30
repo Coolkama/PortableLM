@@ -1,6 +1,6 @@
 # Milestone 1 test record
 
-Do not mark a manual test as passed unless a real model produced tokens on that exact platform.
+Do not mark a manual test as passed unless a real model produced visible response text on that exact platform.
 
 ## Automated results
 
@@ -22,11 +22,11 @@ npm run test:dist
 | Invalid magic rejection | Yes | Yes | No | Passed | Unit test |
 | Zero-tensor header rejection | Yes | Yes | No | Passed | Unit test |
 | Bounded diagnostic log | Yes | Yes | Yes | Passed with follow-up | Entry count is bounded; exported model metadata is still too verbose |
-| State-machine lifecycle | Yes | Yes | Partial | Partial | Android load and generation passed; stop/unload/reload remain to be exercised |
+| State-machine lifecycle | Yes | Yes | Partial | Partial | Android model load passed; visible generation output failed |
 | Exact runtime asset presence and hashes | Yes | Yes | Yes | Passed | Deployed runtime loaded successfully on Android |
 | GitHub Pages subdirectory paths | Yes | Yes | Yes | Passed | Compiled site and local runtime assets loaded from the project path |
-| No required CDN/Hugging Face runtime URL | Yes | Yes | Partial | Partial | No runtime download failure; blocked-origin test remains outstanding |
-| Real GGUF inference | Yes | No | Android | Passed on Android | Qwen3-0.6B-Q4_0.gguf loaded and generated successfully |
+| No required CDN/Hugging Face runtime URL | Yes | Yes | Partial | Partial | Blocked-origin test remains outstanding |
+| Real GGUF inference | Yes | No | Android | Failed pending retest | The engine ran for about 29.8 seconds but no response text appeared |
 
 ## Desktop acceptance checklist
 
@@ -50,7 +50,7 @@ Record the browser version, operating system, model filename, model SHA-256, fil
 
 ## Android acceptance checklist
 
-Status is **Partial pass**. A real model loaded and generated successfully, but the remaining lifecycle and resilience checks must still be completed.
+Status is **Failed pending retest**. The model loaded correctly, but the tested build produced no visible response text.
 
 ### Recorded run — 29 June 2026
 
@@ -63,12 +63,14 @@ Status is **Partial pass**. A real model loaded and generated successfully, but 
 - GGUF: version 3, 310 tensors, 32 metadata entries.
 - Runtime: Wllama 3.5.1 compatibility engine, worker-based single-thread CPU.
 - Context: 1,024 tokens; batch and micro-batch 256.
-- Model load: 12,191.6 ms.
-- Generation: completed successfully in 29,794.4 ms.
-- Worker state after generation: active.
+- Model load: 12,191.6 ms — passed.
+- Generation operation: ran for 29,794.4 ms and returned without an exception.
+- Visible response: failed; no model response appeared.
+- Worker state afterwards: active.
 - Environment: HTTPS secure context, WebAssembly and SIMD available, not cross-origin isolated, SharedArrayBuffer unavailable, WebGPU detected but deliberately disabled.
 - Privacy check: prompt and response text were absent from the export.
-- Instrumentation limitation: prompt evaluation, time to first token, token count and tokens per second were not returned by this runtime path.
+- Likely cause: Qwen3 streamed thinking tokens through `delta.reasoning_content`, while the tested build only displayed `delta.content`; the 128-token limit could be exhausted before normal answer content began.
+- Candidate fix: disable thinking through `chat_template_kwargs.enable_thinking = false` and accept `reasoning_content` as a compatibility fallback.
 
 - [ ] Record phone model, authoritative Android version and physical RAM.
 - [x] Open the deployed GitHub Pages URL in Chrome for Android.
@@ -77,9 +79,9 @@ Status is **Partial pass**. A real model loaded and generated successfully, but 
 - [ ] Confirm the interface remains responsive during loading.
 - [ ] Open and close the virtual keyboard.
 - [ ] Rotate portrait to landscape and back without losing interface state.
-- [x] Generate with a real local model and complete generation.
-- [x] Record model-load and total generation duration.
-- [ ] Record time to first token and tokens per second; current instrumentation returned no values.
+- [ ] Generate visible streamed response text with the corrected build.
+- [x] Record model-load and total generation-operation duration.
+- [ ] Record time to first token and tokens per second.
 - [ ] Stop generation and confirm the model remains usable.
 - [ ] Background Chrome, return, and record whether the worker survived.
 - [ ] Unload and reload the model.
@@ -91,7 +93,7 @@ Status is **Partial pass**. A real model loaded and generated successfully, but 
 - CI run link
 - Exact model identity and hash
 - Desktop diagnostic export
-- Android diagnostic export
+- Android diagnostic export showing visible output was produced
 - Pass/fail notes for every acceptance step
 
 Only after both required platforms pass may the commit be tagged `v0.1-local-inference-proof` and Milestone 2 begin.
